@@ -12,17 +12,19 @@ public class ClientHandler implements Runnable {
     private PrintWriter out;
     private String username;
 
-    public ClientHandler(Socket socket) {
+    public ClientHandler(Socket socket, ChatServer server) {
         this.socket = socket;
+        this.server = server;
     }
 
     @Override
     public void run() {
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+        try {
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-            out.println("Enter your username: ");
             username = in.readLine();
             server.broadcastMessage(username + " has joined the chat.", this);
+
             String message;
             while ((message = in.readLine()) != null) {
                 server.broadcastMessage(username + ": " + message, this);
@@ -43,7 +45,8 @@ public class ClientHandler implements Runnable {
             socket.close();
         } catch (IOException e) {
             System.err.println("Error closing client socket: " + e.getMessage());
+        } finally {
+            server.removeClient(this);
         }
-        server.removeClient(this);
     }
 }

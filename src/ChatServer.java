@@ -6,20 +6,27 @@ import java.util.Set;
 
 public class ChatServer {
 
+    private static ServerSocket server = null;
     private static final int PORT = 1234;
     private Set<ClientHandler> clientHandlers = new HashSet<>();
 
     public static void main(String[] args) {
-        ChatServer server = new ChatServer();
-        server.start();
+        (new ChatServer()).start();
     }
 
-    public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+    private ChatServer() {
+        try {
+            server = new ServerSocket(PORT);
             System.out.println("Chat server started on port " + PORT);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void start() {
+        try {
             while (true) {
-                Socket socket = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(socket);
+                Socket socket = server.accept();
+                ClientHandler clientHandler = new ClientHandler(socket, this);
                 clientHandlers.add(clientHandler);
                 new Thread(clientHandler).start();
             }
@@ -37,6 +44,7 @@ public class ChatServer {
     }
 
     public synchronized void removeClient(ClientHandler clientHandler) {
-        clientHandlers.remove(clientHandler);
+        if(!clientHandlers.isEmpty())
+            clientHandlers.remove(clientHandler);
     }
 }
