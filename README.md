@@ -6,13 +6,14 @@ This project demonstrates a simple multi-chat application in Java, consisting of
 
 ## Building and Running the Project
 Compile the source files:
-``` javac ChatServer.java ClientHandler.java Client.java```
+```javac ChatServer.java ClientHandler.java Client.java```
 
 Start the server in one terminal:
 ```java ChatServer```
 
 Start multiple client instances in separate terminals:
 ```java Client```
+
 Repeat step 3 for additional clients.
 
 ## Project Structure
