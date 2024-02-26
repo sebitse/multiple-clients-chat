@@ -1,4 +1,4 @@
-### Multi-Chat Application in Java
+# Multi-Chat Application in Java
 This project demonstrates a simple multi-chat application in Java, consisting of a ChatServer, a ClientHandler, and a Client class. This example allows multiple clients to connect to a server, send messages, and receive messages from other connected clients.
 
 ## Prerequisites
