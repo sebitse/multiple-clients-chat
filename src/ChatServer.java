@@ -8,6 +8,7 @@ public class ChatServer {
 
     private static ServerSocket server = null;
     private static final int PORT = 1234;
+    private volatile boolean running = true;
     private Set<ClientHandler> clientHandlers = new HashSet<>();
 
     public static void main(String[] args) {
@@ -22,16 +23,35 @@ public class ChatServer {
             throw new RuntimeException(e);
         }
     }
+
     public void start() {
         try {
-            while (true) {
+            while (running) {
                 Socket socket = server.accept();
                 ClientHandler clientHandler = new ClientHandler(socket, this);
                 clientHandlers.add(clientHandler);
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {
-            System.err.println("Error starting the server: " + e.getMessage());
+            if (running) { // Only log if the server is running
+                System.err.println("Error starting the server: " + e.getMessage());
+            }
+        } finally {
+            stop();
+        }
+    }
+
+    public void stop() {
+        running = false;
+        try {
+            server.close();
+            synchronized (clientHandlers) {
+                for (ClientHandler clientHandler : clientHandlers) {
+                    clientHandler.closeConnection();
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error closing the server: " + e.getMessage());
         }
     }
 
